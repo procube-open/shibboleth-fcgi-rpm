@@ -23,4 +23,5 @@ RUN mkdir ${HOME}/srpms \
     && rpm -ivh shibboleth-2.6.0-2.1.src.rpm
 RUN cd rpmbuild/SPECS \
     && patch -p 1 shibboleth.spec < /tmp/buffer/shibboleth.spec.patch
-CMD ["/usr/bin/rpmbuild","-bb","rpmbuild/SPECS/shibboleth.spec","-with","fastcgi"]
+COPY build.sh .
+CMD ["/bin/bash","./build.sh"]
