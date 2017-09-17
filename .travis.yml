@@ -5,7 +5,7 @@ services:
 before_install:
   - docker build -t chipin/shibboleth-fcgi-rpm .
   - mkdir -p /tmp/RPMS/x86_64
-  - chown 111:111 -R /tmp/RPMS
+  - sudo chown 111:111 -R /tmp/RPMS
   - docker run -it --rm --name shibboleth-fcgi-rpm -v /tmp/RPMS:/home/builder/rpmbuild/RPMS chipin/shibboleth-fcgi-rpm
   - (cd /tmp;tar czf - RPMS) > shibboleth-fcgi-rpm.master.tar.gz
 deploy:
