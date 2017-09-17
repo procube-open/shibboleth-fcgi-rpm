@@ -19,7 +19,7 @@ WORKDIR ${HOME}
 USER builder
 RUN mkdir ${HOME}/srpms \
     && cd srpms \
-    && wget http://download.opensuse.org/repositories/security:/shibboleth/CentOS_CentOS-6/src/shibboleth-2.6.0-2.1.src.rpm \
+    && wget http://download.opensuse.org/repositories/security:/shibboleth/CentOS_CentOS-6/src/shibboleth-2.6.0-2.2.src.rpm \
     && rpm -ivh shibboleth-2.6.0-2.1.src.rpm
 RUN cd rpmbuild/SPECS \
     && patch -p 1 shibboleth.spec < /tmp/buffer/shibboleth.spec.patch
