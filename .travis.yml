@@ -2,7 +2,8 @@ sudo: required
 language: ruby
 services:
   - docker
-before_install:
+install: true
+script:
   - docker build -t chipin/shibboleth-fcgi-rpm .
   - mkdir -p /tmp/RPMS/x86_64
   - sudo chown 111:111 -R /tmp/RPMS
