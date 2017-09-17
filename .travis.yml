@@ -1,15 +1,14 @@
 sudo: required
-
 language: ruby
-
 services:
   - docker
-
 before_install:
-  - docker build -t carlad/sinatra .
-  - docker run -d -p 127.0.0.1:80:4567 carlad/sinatra /bin/sh -c "cd /root/sinatra; bundle exec foreman start;"
-  - docker ps -a
-  - docker run carlad/sinatra /bin/sh -c "cd /root/sinatra; bundle exec rake test"
-
-script:
-  - bundle exec rake test
+  - docker build -t chipin/shibboleth-fcgi-rpm .
+  - docker run -it --rm --name shibboleth-fcgi-rpm -v ./RPMS:/home/builder/rpmbuild/RPMS chipin/shibboleth-fcgi-rpm
+deploy:
+  provider: releases
+  api_key:
+    secure: arzYF9uqcVY0JsQ6MPw2CYLVtlkOIeY0Pn9tYAR9BJc4zmIhK0xR3we1fvErB9pYG59sptMdn6aJchi/ZYEWzoGBs6joWOayEd9gbTjhUfVQCYpGMpuGSsB1FF7gNepGbenI3189+Kb6xNSnKewt14ma6FpDqhbOMhqMoctaNw2xd5iWdWLqHO5nMyCDpVEOSyk09Flie/jK+9krX22qYhAejj5oeuYQKeD4tCLnmOR38ItWqYT3cHHEFBMgp6nVW2qiDROOEwgC4h2zBjCr4qt84T51GXhSLm3euYKv6idVlaRADEej7QYjB+ykR76q7Qic5ViYYBjmtgzBcYnrQ8cZb/c88XKY76QLUocTeypsNgDv/7+ntckITM7JFaekeU4hvC2UdlGQMjkdDv4xWMPx8AY30oVpelnDQ3KNteUm0WVEr4c7ck9uP6Rl69GD06jYqrtdTsxya+ZoChluBf7wzKlT2Ux5oWHnp7co2u5KPFJVxdCA/o8kCAasuoXixDRK/MzbOPVDfPL9PARY7kJpx0Fd27utPJwvbEqiGyzzvMYLvt32QybpbwSZlVezGaFB4ciee/wp4FC7R5AmeMrtRpDzIYpnougyV8OKVyNJW5bfx4YDTQurdB02r8JhCyVACFKWfRTVUi6t82in3iAVmsPrQEcYv7Wn1Ly2/rI=
+  file: RPMS/x86_64/*
+  on:
+    repo: chip-in/shibboleth-fcgi-rpm
