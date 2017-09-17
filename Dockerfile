@@ -4,7 +4,6 @@ RUN groupadd -g 111 builder
 RUN useradd -g builder -u 111 builder
 ENV HOME /home/builder
 WORKDIR ${HOME}
-RUN mkdir -p ${HOME}/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
 ENV SHIBBOLETH_VERSION "2.6.0-2.2"
 RUN yum -y update \
     && yum -y install unzip wget sudo lsof openssh-clients telnet bind-utils tar tcpdump vim initscripts \
@@ -18,6 +17,7 @@ RUN yum -y install fcgi-devel
 RUN mkdir -p /tmp/buffer
 COPY shibboleth.spec.patch /tmp/buffer/
 USER builder
+RUN mkdir -p ${HOME}/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
 RUN echo "%_topdir %(echo ${HOME})/rpmbuild" > ${HOME}/.rpmmacros
 RUN mkdir ${HOME}/srpms \
     && cd srpms \
