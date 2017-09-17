@@ -17,11 +17,8 @@ RUN yum -y install epel-release
 RUN yum -y install fcgi-devel
 RUN mkdir -p /tmp/buffer
 COPY shibboleth.spec.patch /tmp/buffer/
-RUN groupadd -g 111 builder
-RUN useradd -g builder -u 111 builder
-ENV HOME /home/builder
-WORKDIR ${HOME}
 USER builder
+RUN echo "%_topdir %(echo ${HOME})/rpmbuild" > ${HOME}/.rpmmacros
 RUN mkdir ${HOME}/srpms \
     && cd srpms \
     && wget http://download.opensuse.org/repositories/security:/shibboleth/CentOS_CentOS-6/src/shibboleth-${SHIBBOLETH_VERSION}.src.rpm \
