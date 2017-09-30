@@ -4,10 +4,10 @@ services:
   - docker
 install: true
 script:
-  - docker build -t procube-open/shibboleth-fcgi-rpm .
+  - docker build -t procube/shibboleth-fcgi-rpm .
   - mkdir -p /tmp/RPMS/x86_64
   - sudo chown 111:111 -R /tmp/RPMS
-  - docker run -it --rm --name shibboleth-fcgi-rpm -v /tmp/RPMS:/home/builder/rpmbuild/RPMS procube-open/shibboleth-fcgi-rpm
+  - docker run -it --rm --name shibboleth-fcgi-rpm -v /tmp/RPMS:/home/builder/rpmbuild/RPMS procube/shibboleth-fcgi-rpm
   - (cd /tmp;tar -czf - --exclude 'RPMS/x86_64/shibboleth-de*' RPMS) > $TRAVIS_BUILD_DIR/shibboleth-fcgi-rpm.tar.gz
 deploy:
   provider: releases
@@ -17,5 +17,5 @@ deploy:
   overwrite: true
   skip_cleanup: true
   on:
-    repo: chip-in/shibboleth-fcgi-rpm
+    repo: procube-open/shibboleth-fcgi-rpm
     tags: true
