@@ -1,5 +1,5 @@
 #!/bin/bash
 mkdir -p ./rpmbuild/{BUILD/x86_64,RPMS,SOURCES,SPECS,SRPMS}
 
-rpmbuild -bb rpmbuild/SPECS/shibboleth.spec -with fastcgi
+rpmbuild -bb rpmbuild/SPECS/shibboleth.spec --with fastcgi
 cp /tmp/rpms/* rpmbuild/RPMS/x86_64

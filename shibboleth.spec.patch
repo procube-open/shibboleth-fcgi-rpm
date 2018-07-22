@@ -1,31 +1,33 @@
---- original/shibboleth.spec	2016-07-13 03:48:01.000000000 +0900
-+++ new/shibboleth.spec	2018-07-22 12:44:57.000000000 +0900
-@@ -8,11 +8,15 @@
+--- shibboleth-sp-3.0.1/shibboleth.spec	2018-07-19 05:31:38.000000000 +0900
++++ new3/shibboleth.spec	2018-07-22 17:37:22.012089888 +0900
+@@ -7,11 +7,16 @@
+ License:	Apache-2.0
  URL:		http://shibboleth.net/
  Source:		%{name}-sp-%{version}.tar.bz2
- Patch0:		shibboleth2.xml.patch
-+Patch1:		logger.patch
++Patch0:		logger.patch
++Patch1:		shibresponder.patch
  BuildRoot:	%{_tmppath}/%{name}-sp-%{version}-root
  Obsoletes:	shibboleth-sp = 2.5.0
  Requires:	openssl
-+Requires: supervisor
-+Requires: nginx
++Requires: 	supervisor
++Requires: 	nginx
  %if 0%{?rhel} >= 6 || 0%{?centos_version} >= 600 || 0%{?amzn} >= 1
--PreReq:		xmltooling-schemas%{?_isa} >= 1.6.0, opensaml-schemas%{?_isa} >= 2.6.0
+-PreReq:		xmltooling-schemas%{?_isa} >= 3.0.0, opensaml-schemas%{?_isa} >= 3.0.0
 +# following line cause 'prereq is deprecated' error
-+# PreReq:		xmltooling-schemas%{?_isa} >= 1.6.0, opensaml-schemas%{?_isa} >= 2.6.0
++# PreReq:		xmltooling-schemas%{?_isa} >= 3.0.0, opensaml-schemas%{?_isa} >= 3.0.0
  %else
- PreReq:		xmltooling-schemas >= 1.6.0, opensaml-schemas >= 2.6.0
+ PreReq:		xmltooling-schemas >= 3.0.0, opensaml-schemas >= 3.0.0
  %endif
-@@ -111,6 +115,7 @@
+@@ -101,6 +106,8 @@
+ 
  %prep
  %setup -n %{name}-sp-%{version}
- %patch0 -p1
++%patch0 -p1
 +%patch1 -p1
  
  %build
- %if 0%{?suse_version} >= 1210
-@@ -163,7 +168,7 @@
+ %if 0%{?suse_version} >= 1300
+@@ -164,7 +171,7 @@
  	fi
  	if [ "$APACHE_CONFD" != "no" ] ; then
  		%{__mkdir} -p $RPM_BUILD_ROOT$APACHE_CONFD
@@ -34,7 +36,7 @@
  		echo "%config(noreplace) $APACHE_CONFD/shib.conf" >> rpm.filelist
  	fi
  fi
-@@ -174,6 +179,10 @@
+@@ -175,6 +182,10 @@
  	%{__mkdir} -p $RPM_BUILD_ROOT%{_unitdir}
  	echo "%attr(0444,-,-) %{_unitdir}/shibd.service" >> rpm.filelist
  	SYSTEMD_SHIBD="$RPM_BUILD_ROOT%{_unitdir}/shibd.service"
@@ -45,17 +47,17 @@
  
  	# Get run directory created at boot time.
  	%{__mkdir} -p $RPM_BUILD_ROOT%{_tmpfilesdir}
-@@ -214,9 +223,6 @@
+@@ -216,9 +227,6 @@
  Environment=LD_LIBRARY_PATH=/opt/shibboleth/%{_lib}
  %endif
  ExecStart=%{_sbindir}/shibd -f -F
 -StandardInput=null
 -StandardOutput=null
 -StandardError=journal
- TimeoutStopSec=5s
- TimeoutStartSec=150s
+ TimeoutStopSec=1m
+ TimeoutStartSec=5m
  Restart=on-failure
-@@ -225,6 +231,40 @@
+@@ -227,6 +235,40 @@
  [Install]
  WantedBy=multi-user.target
  EOF
@@ -96,7 +98,7 @@
  elif [ "$SYSCONFIG_SHIBD" != "no" ] ; then
  	# Populate the sysconfig file.
  	cat > $SYSCONFIG_SHIBD <<EOF
-@@ -279,6 +319,7 @@
+@@ -281,6 +323,7 @@
  	-d  %{_localstatedir}/run/shibboleth -s /sbin/nologin -c "Shibboleth SP daemon" %{runuser}
  %if 0%{?suse_version} >= 1210
  	%service_add_pre shibd.service
@@ -104,7 +106,7 @@
  %endif
  exit 0
  
-@@ -321,6 +362,10 @@
+@@ -327,6 +370,10 @@
  %if 0%{?rhel} >= 7 || 0%{?centos_version} >= 700
  	# Initial prep for systemd
  	%systemd_post shibd.service
@@ -115,7 +117,7 @@
  	if [ $1 -gt 1 ] ; then
  		systemctl daemon-reload
  	fi
-@@ -347,6 +392,10 @@
+@@ -353,6 +400,10 @@
  %if "%{_vendor}" == "redhat" || "%{_vendor}" == "amazon"
  %if 0%{?rhel} >= 7 || 0%{?centos_version} >= 700
  	%systemd_preun shibd.service
@@ -126,15 +128,15 @@
  %else
  	if [ $1 -eq 0 ] ; then
  		/sbin/service shibd stop >/dev/null 2>&1
-@@ -377,6 +426,7 @@
- 	# On upgrade, restart components if they're already running.
+@@ -383,6 +434,7 @@
+ # On upgrade, restart components if they're already running.
  %if 0%{?rhel} >= 7 || 0%{?centos_version} >= 700
  	%systemd_postun_with_restart shibd.service
 +	%systemd_postun_with_restart shibfcgi.service
  %else
  	if [ $1 -ge 1 ] ; then
  		/sbin/service shibd status 1>/dev/null && /sbin/service shibd restart 1>/dev/null
-@@ -391,7 +441,7 @@
+@@ -397,7 +449,7 @@
  %if 0%{?suse_version} >= 1210
  	%service_del_postun shibd.service
  %else
@@ -143,7 +145,26 @@
  	%restart_on_update shibd
  	%{insserv_cleanup}
  %endif
-@@ -526,7 +576,7 @@
+@@ -425,6 +477,8 @@
+ %exclude %{_libdir}/*.la
+ %dir %{_libdir}/shibboleth
+ %{_libdir}/shibboleth/*.so
++%{_libdir}/shibboleth/shibauthorizer
++%{_libdir}/shibboleth/shibresponder
+ %exclude %{_libdir}/shibboleth/*.la
+ %attr(0750,%{runuser},%{runuser}) %dir %{_localstatedir}/log/shibboleth
+ %if 0%{?suse_version} < 1300
+@@ -457,9 +511,6 @@
+ %config %{_initrddir}/shibd
+ %{_sbindir}/rcshibd
+ %endif
+-%if 0%{?suse_version} >= 1210 || 0%{?rhel} >= 7 || 0%{?centos_version} >= 700
+-%{_tmpfilesdir}/%{name}.conf
+-%endif
+ %{_sysconfdir}/shibboleth/example-shibboleth2.xml
+ %{_sysconfdir}/shibboleth/*.dist
+ %{_sysconfdir}/shibboleth/apache*.config
+@@ -534,7 +585,7 @@
  * Sun Jun 26 2011  Scott Cantor  <cantor.2@osu.edu>  - 2.4.3-1
  - Log files shouldn't be world readable.
  - Explicit requirement for libcurl-openssl on RHEL6
