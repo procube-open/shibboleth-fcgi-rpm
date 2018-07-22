@@ -8,7 +8,7 @@ ENV SHIBBOLETH_VERSION "2.6.0-2.2"
 RUN yum -y update \
     && yum -y install unzip wget sudo lsof openssh-clients telnet bind-utils tar tcpdump vim initscripts \
          gcc openssl-devel zlib-devel pcre-devel lua lua-devel rpmdevtools make deltarpm \
-         systemd-devel chrpath doxygen unixODBC-devel httpd-devel xerces-c-devel gcc-c++ boost-devel
+         systemd-devel chrpath doxygen unixODBC-devel httpd-devel gcc-c++ boost-devel
 ADD shibboleth.repo /etc/yum.repos.d
 RUN yum -y install libxml-security-c-devel libxmltooling-devel libsaml-devel liblog4shib-devel \
        xmltooling-schemas opensaml-schemas memcached-devel memcached libmemcached libmemcached-devel
