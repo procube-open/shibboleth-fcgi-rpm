@@ -16,8 +16,9 @@ RUN yum -y install epel-release
 RUN yum -y install fcgi-devel
 RUN mkdir -p /tmp/buffer
 RUN mkdir -p /tmp/rpms
-RUN yumdownloader --destdir /tmp/rpms libcurl-openssl liblog4shib1 libsaml8 libsaml9 libxml-security-c17 \
-     libxmltooling6 libxmltooling7 opensaml-schemas xmltooling-schemas
+RUN yumdownloader --destdir /tmp/rpms libcurl-openssl liblog4shib2 libsaml10 libsaml-devel libxml-security-c20 \
+     libxmltooling8 opensaml-schemas xmltooling-schemas libxerces-c-3_2 libxmltooling-devel liblog4shib-devel \
+     libxml-security-c-devel libxerces-c-devel libcurl-openssl-devel
 COPY shibboleth.spec.patch /tmp/buffer/
 COPY logger.patch /tmp/buffer/
 COPY shibresponder.patch /tmp/buffer/
