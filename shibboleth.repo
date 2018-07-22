@@ -1,7 +1,9 @@
 [security_shibboleth]
 name=Shibboleth (CentOS_7)
 type=rpm-md
-baseurl=https://download.opensuse.org/repositories/security:/shibboleth/CentOS_7/
+# baseurl=https://download.opensuse.org/repositories/security:/shibboleth/CentOS_7/
+baseurl=http://ftp.gwdg.de/pub/opensuse/repositories/security:/shibboleth/CentOS_7/
 gpgcheck=1
-gpgkey=https://download.opensuse.org/repositories/security:/shibboleth/CentOS_7//repodata/repomd.xml.key
+# gpgkey=https://download.opensuse.org/repositories/security:/shibboleth/CentOS_7//repodata/repomd.xml.key
+gpgkey=http://ftp.gwdg.de/pub/opensuse/repositories/security%3A/shibboleth/CentOS_7//repodata/repomd.xml.key
 enabled=1
