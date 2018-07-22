@@ -1,5 +1,5 @@
 --- original/shibboleth.spec	2016-07-13 03:48:01.000000000 +0900
-+++ new/shibboleth.spec	2017-10-11 12:57:16.000000000 +0900
++++ new/shibboleth.spec	2018-07-22 12:03:46.000000000 +0900
 @@ -8,9 +8,12 @@
  URL:		http://shibboleth.net/
  Source:		%{name}-sp-%{version}.tar.bz2
@@ -41,15 +41,13 @@
  
  	# Get run directory created at boot time.
  	%{__mkdir} -p $RPM_BUILD_ROOT%{_tmpfilesdir}
-@@ -213,10 +221,7 @@
- %if 0%{?rhel} >= 6 || 0%{?centos_version} >= 600 || 0%{?amzn} >= 1
+@@ -214,9 +222,6 @@
  Environment=LD_LIBRARY_PATH=/opt/shibboleth/%{_lib}
  %endif
--ExecStart=%{_sbindir}/shibd -f -F
+ ExecStart=%{_sbindir}/shibd -f -F
 -StandardInput=null
 -StandardOutput=null
 -StandardError=journal
-+ExecStart=%{_sbindir}/shibd -f
  TimeoutStopSec=5s
  TimeoutStartSec=150s
  Restart=on-failure
