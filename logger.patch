@@ -1,5 +1,5 @@
 --- shibboleth-sp-3.0.1/configs/native.logger	2018-07-10 10:17:23.000000000 +0900
-+++ new3/configs/native.logger	2018-09-20 18:01:16.000000000 +0900
++++ new3/configs/native.logger	2018-09-20 18:01:16.956910989 +0900
 @@ -27,12 +27,9 @@
  
  # define the appender
