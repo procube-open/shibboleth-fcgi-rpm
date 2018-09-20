@@ -1,49 +1,20 @@
---- shibboleth-sp-3.0.1/configs/shibd.logger.in	2018-07-10 10:17:23.000000000 +0900
-+++ new3/configs/shibd.logger.in	2018-07-22 16:15:28.082656809 +0900
-@@ -44,29 +44,23 @@
- 
- # define the appenders
- 
--log4j.appender.shibd_log=org.apache.log4j.RollingFileAppender
--log4j.appender.shibd_log.fileName=@-PKGLOGDIR-@/shibd.log
--log4j.appender.shibd_log.maxFileSize=1000000
--log4j.appender.shibd_log.maxBackupIndex=10
-+log4j.appender.shibd_log=org.apache.log4j.ConsoleAppender
- log4j.appender.shibd_log.layout=org.apache.log4j.PatternLayout
--log4j.appender.shibd_log.layout.ConversionPattern=%d{%Y-%m-%d %H:%M:%S} %p %c %x: %m%n
-+log4j.appender.shibd_log.layout.ConversionPattern=%p %c %x: %m%n
- 
--log4j.appender.warn_log=org.apache.log4j.RollingFileAppender
--log4j.appender.warn_log.fileName=@-PKGLOGDIR-@/shibd_warn.log
--log4j.appender.warn_log.maxFileSize=1000000
--log4j.appender.warn_log.maxBackupIndex=10
-+log4j.appender.warn_log=org.apache.log4j.ConsoleAppender
- log4j.appender.warn_log.layout=org.apache.log4j.PatternLayout
--log4j.appender.warn_log.layout.ConversionPattern=%d{%Y-%m-%d %H:%M:%S} %p %c %x: %m%n
-+log4j.appender.warn_log.layout.ConversionPattern=%p %c %x: %m%n
- log4j.appender.warn_log.threshold=WARN
- 
- log4j.appender.tran_log=org.apache.log4j.RollingFileAppender
--log4j.appender.tran_log.fileName=@-PKGLOGDIR-@/transaction.log
-+log4j.appender.tran_log.fileName=/var/log/shibboleth/transaction.log
- log4j.appender.tran_log.maxFileSize=1000000
- log4j.appender.tran_log.maxBackupIndex=20
- log4j.appender.tran_log.layout=org.apache.log4j.PatternLayout
- log4j.appender.tran_log.layout.ConversionPattern=%d{%Y-%m-%d %H:%M:%S}|%c|%m%n
- 
- log4j.appender.sig_log=org.apache.log4j.FileAppender
--log4j.appender.sig_log.fileName=@-PKGLOGDIR-@/signature.log
-+log4j.appender.sig_log.fileName=/var/log/shibboleth/signature.log
- log4j.appender.sig_log.layout=org.apache.log4j.PatternLayout
- log4j.appender.sig_log.layout.ConversionPattern=%m
 --- shibboleth-sp-3.0.1/configs/native.logger	2018-07-10 10:17:23.000000000 +0900
-+++ new3/configs/native.logger	2018-07-22 16:06:10.478536975 +0900
-@@ -28,7 +28,7 @@
++++ new3/configs/native.logger	2018-09-20 18:01:16.000000000 +0900
+@@ -27,12 +27,9 @@
+ 
  # define the appender
  
- # Change to SyslogAppender for remote syslog, and set host/port
+-# Change to SyslogAppender for remote syslog, and set host/port
 -log4j.appender.native_log=org.apache.log4j.LocalSyslogAppender
-+log4j.appender.native_log=org.apache.log4j.ConsoleAppender
- #log4j.appender.native_log.syslogHost=localhost
- #log4j.appender.native_log.portNumber=514
- log4j.appender.native_log.syslogName=shibboleth
+-#log4j.appender.native_log.syslogHost=localhost
+-#log4j.appender.native_log.portNumber=514
+-log4j.appender.native_log.syslogName=shibboleth
+-# Facility is numeric, 16 is LOCAL0
+-log4j.appender.native_log.facility=16
++log4j.appender.native_log=org.apache.log4j.RollingFileAppender
++log4j.appender.native_log.fileName=/var/log/shibboleth/native.log
++log4j.appender.native_log.maxFileSize=1000000
++log4j.appender.native_log.maxBackupIndex=10
+ log4j.appender.native_log.layout=org.apache.log4j.PatternLayout
+-log4j.appender.native_log.layout.ConversionPattern=%p %c %x: %m%n
++log4j.appender.native_log.layout.ConversionPattern=%d{%Y-%m-%d %H:%M:%S} %p %c %x: %m%n
