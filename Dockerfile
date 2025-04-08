@@ -7,6 +7,32 @@ WORKDIR ${HOME}
 ENV SHIBBOLETH_VERSION "3.5.0"
 ARG SHIBBOLETH_SOURCE_TARBALL=shibboleth-sp-${SHIBBOLETH_VERSION}.tar.gz
 ARG SHIBBOLETH_DOWNLOAD_URL=https://shibboleth.net/downloads/service-provider/${SHIBBOLETH_VERSION}/${SHIBBOLETH_SOURCE_TARBALL}
+RUN cat <<EOL > /etc/yum.repos.d/CentOS-Base.repo
+[base]
+name=CentOS-\$releasever - Base
+baseurl=http://vault.centos.org/centos/\$releasever/os/\$basearch/
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+
+[updates]
+name=CentOS-\$releasever - Updates
+baseurl=http://vault.centos.org/centos/\$releasever/updates/\$basearch/
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+
+[extras]
+name=CentOS-\$releasever - Extras
+baseurl=http://vault.centos.org/centos/\$releasever/extras/\$basearch/
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+
+[centosplus]
+name=CentOS-\$releasever - Plus
+baseurl=http://vault.centos.org/centos/\$releasever/centosplus/\$basearch/
+gpgcheck=1
+enabled=0
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+EOL
 RUN yum -y update \
     && yum -y install unzip wget sudo lsof openssh-clients telnet bind-utils tar tcpdump vim initscripts \
          gcc openssl-devel zlib-devel pcre-devel lua lua-devel rpmdevtools make deltarpm \
