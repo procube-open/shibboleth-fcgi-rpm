@@ -1,177 +1,178 @@
---- original/shibboleth.spec	2025-04-08 17:02:14.066040498 +0900
-+++ new/shibboleth.spec	2025-04-08 17:21:35.307023193 +0900
-@@ -1,15 +1,19 @@
+--- new/shibboleth.spec	2025-04-08 18:25:33.062902855 +0900
++++ original/shibboleth.spec	2025-04-08 17:02:14.066040498 +0900
+@@ -1,19 +1,15 @@
  Name:		shibboleth
  Version:	3.5.0
--Release:	1
-+Release:	2
+-Release:	2
++Release:	1
  Summary:	Open source system for attribute-based Web SSO
  Group:		Productivity/Networking/Security
  Vendor:		Shibboleth Consortium
  License:	Apache-2.0
  URL:		http://shibboleth.net/
- Source:		%{name}-sp-%{version}.tar.bz2
-+Patch0:		logger.patch
-+Patch1:		shibresponder.patch
+-Source:		%{name}-sp-%{version}.tar.gz
+-Patch0:		logger.patch
+-Patch1:		shibresponder.patch
++Source:		%{name}-sp-%{version}.tar.bz2
  BuildRoot:	%{_tmppath}/%{name}-sp-%{version}-root
  Obsoletes:	shibboleth-sp = 2.5.0
  Requires:	openssl
-+Requires: 	supervisor
-+Requires: 	nginx
+-Requires: 	supervisor
+-Requires: 	nginx
  %if 0%{?rhel} >= 6 || 0%{?amzn} == 1 || 0%{?amzn} == 2
  PreReq:		xmltooling-schemas%{?_isa} >= 3.2.0, opensaml-schemas%{?_isa} >= 3.2.0
  %else
-@@ -107,6 +111,8 @@
+@@ -111,8 +107,6 @@
  
  %prep
  %setup -n %{name}-sp-%{version}
-+%patch0 -p1
-+%patch1 -p1
+-%patch0 -p1
+-%patch1 -p1
  
  %build
  %if 0%{?suse_version} >= 1300
-@@ -185,6 +191,10 @@
+@@ -191,10 +185,6 @@
  	%{__mkdir} -p $RPM_BUILD_ROOT%{_unitdir}
  	echo "%attr(0444,-,-) %{_unitdir}/shibd.service" >> rpm.filelist
  	SYSTEMD_SHIBD="$RPM_BUILD_ROOT%{_unitdir}/shibd.service"
-+	echo "%attr(0444,-,-) %{_unitdir}/shibfcgi.service" >> rpm.filelist
-+	SYSTEMD_SHIBFCGI="$RPM_BUILD_ROOT%{_unitdir}/shibfcgi.service"
-+	echo "%attr(0444,-,-) %{_sysconfdir}/shibboleth/shibfcgi-supervisor.conf" >> rpm.filelist
-+	SHIBFCGI_SUPERVISOR_CONF="$RPM_BUILD_ROOT%{_sysconfdir}/shibboleth/shibfcgi-supervisor.conf"
+-	echo "%attr(0444,-,-) %{_unitdir}/shibfcgi.service" >> rpm.filelist
+-	SYSTEMD_SHIBFCGI="$RPM_BUILD_ROOT%{_unitdir}/shibfcgi.service"
+-	echo "%attr(0444,-,-) %{_sysconfdir}/shibboleth/shibfcgi-supervisor.conf" >> rpm.filelist
+-	SHIBFCGI_SUPERVISOR_CONF="$RPM_BUILD_ROOT%{_sysconfdir}/shibboleth/shibfcgi-supervisor.conf"
  
  	# Get run directory created at boot time.
  	%{__mkdir} -p $RPM_BUILD_ROOT%{_tmpfilesdir}
-@@ -216,7 +226,6 @@
+@@ -226,6 +216,7 @@
  Description=Shibboleth Service Provider Daemon
  Documentation=https://wiki.shibboleth.net/confluence/display/SP3/Home
  After=network-online.target
--Before=httpd.service
++Before=httpd.service
  
  [Service]
  Type=notify
-@@ -226,9 +235,6 @@
+@@ -235,6 +226,9 @@
  Environment=LD_LIBRARY_PATH=/opt/shibboleth/%{_lib}
  %endif
  ExecStart=%{_sbindir}/shibd -f -F
--StandardInput=null
--StandardOutput=null
--StandardError=journal
++StandardInput=null
++StandardOutput=null
++StandardError=journal
  TimeoutStopSec=1m
  TimeoutStartSec=5m
  Restart=on-failure
-@@ -237,6 +243,40 @@
+@@ -243,40 +237,6 @@
  [Install]
  WantedBy=multi-user.target
  EOF
-+cat > $SYSTEMD_SHIBFCGI <<EOF
-+[Unit]
-+Description=Shibboleth Fast CGI support service
-+
-+[Service]
-+Type=forking
-+ExecStart=/usr/bin/supervisord -c %{_sysconfdir}/shibboleth/shibfcgi-supervisor.conf
-+
-+[Install]
-+WantedBy=multi-user.target
-+EOF
-+  cat > $SHIBFCGI_SUPERVISOR_CONF <<EOF
-+[supervisord]
-+logfile=%{_localstatedir}/log/shibboleth/supervisord.log
-+
-+[fcgi-program:shibauthorizer]
-+command=%{_libdir}/shibboleth/shibauthorizer
-+socket=unix://%{_localstatedir}/run/shibboleth/shibauthorizer.sock
-+socket_owner=shibd:shibd
-+socket_mode=0660
-+user=shibd
-+process_name=%%(program_name)s_%%(process_num)02d
-+stdout_logfile=%{_localstatedir}/log/shibboleth/shibauthorizer.log
-+stderr_logfile=%{_localstatedir}/log/shibboleth/shibauthorizer.error.log
-+
-+[fcgi-program:shibresponder]
-+command=%{_libdir}/shibboleth/shibresponder
-+socket=unix://%{_localstatedir}/run/shibboleth/shibresponder.sock
-+socket_owner=shibd:shibd
-+socket_mode=0660
-+user=shibd
-+stdout_logfile=%{_localstatedir}/log/shibboleth/shibresponder.log
-+stderr_logfile=%{_localstatedir}/log/shibboleth/shibresponder.error.log
-+EOF
+-cat > $SYSTEMD_SHIBFCGI <<EOF
+-[Unit]
+-Description=Shibboleth Fast CGI support service
+-
+-[Service]
+-Type=forking
+-ExecStart=/usr/bin/supervisord -c %{_sysconfdir}/shibboleth/shibfcgi-supervisor.conf
+-
+-[Install]
+-WantedBy=multi-user.target
+-EOF
+-  cat > $SHIBFCGI_SUPERVISOR_CONF <<EOF
+-[supervisord]
+-logfile=%{_localstatedir}/log/shibboleth/supervisord.log
+-
+-[fcgi-program:shibauthorizer]
+-command=%{_libdir}/shibboleth/shibauthorizer
+-socket=unix://%{_localstatedir}/run/shibboleth/shibauthorizer.sock
+-socket_owner=shibd:shibd
+-socket_mode=0660
+-user=shibd
+-process_name=%%(program_name)s_%%(process_num)02d
+-stdout_logfile=%{_localstatedir}/log/shibboleth/shibauthorizer.log
+-stderr_logfile=%{_localstatedir}/log/shibboleth/shibauthorizer.error.log
+-
+-[fcgi-program:shibresponder]
+-command=%{_libdir}/shibboleth/shibresponder
+-socket=unix://%{_localstatedir}/run/shibboleth/shibresponder.sock
+-socket_owner=shibd:shibd
+-socket_mode=0660
+-user=shibd
+-stdout_logfile=%{_localstatedir}/log/shibboleth/shibresponder.log
+-stderr_logfile=%{_localstatedir}/log/shibboleth/shibresponder.error.log
+-EOF
  elif [ "$SYSCONFIG_SHIBD" != "no" ] ; then
  	# Populate the sysconfig file.
  	cat > $SYSCONFIG_SHIBD <<EOF
-@@ -291,6 +331,7 @@
+@@ -331,7 +291,6 @@
  	-d  %{_localstatedir}/run/shibboleth -s /sbin/nologin -c "Shibboleth SP daemon" %{runuser}
  %if 0%{?suse_version} >= 1210
  	%service_add_pre shibd.service
-+	%service_add_pre shibfcgi.service
+-	%service_add_pre shibfcgi.service
  %endif
  exit 0
  
-@@ -326,7 +367,11 @@
+@@ -367,11 +326,7 @@
  
  %if 0%{?rhel} >= 7
  	# Initial prep for systemd
--	%systemd_post shibd.service
-+systemctl enable shibd.service
-+systemctl enable shibfcgi.service
-+	if [ $1 -eq 1 ] ; then
-+		gpasswd -a nginx shibd
-+	fi
+-systemctl enable shibd.service
+-systemctl enable shibfcgi.service
+-	if [ $1 -eq 1 ] ; then
+-		gpasswd -a nginx shibd
+-	fi
++	%systemd_post shibd.service
  	if [ $1 -gt 1 ] ; then
  		systemctl daemon-reload
  	fi
-@@ -338,6 +383,7 @@
+@@ -383,7 +338,6 @@
  %if "%{_vendor}" == "suse"
  %if 0%{?suse_version} >= 1210
  	%service_add_post shibd.service
-+	%service_add_post shibfcgi.service
+-	%service_add_post shibfcgi.service
  	systemd-tmpfiles --create %{_tmpfilesdir}/%{name}.conf
  %else
  	# This adds the proper /etc/rc*.d links for the script
-@@ -353,6 +399,10 @@
+@@ -399,10 +353,6 @@
  %if "%{_vendor}" == "redhat" || "%{_vendor}" == "amazon"
  %if 0%{?rhel} >= 7
  	%systemd_preun shibd.service
-+	%systemd_preun shibfcgi.service
-+	if [ $1 -eq 0 ] ; then
-+		gpasswd -d nginx shibd
-+	fi
+-	%systemd_preun shibfcgi.service
+-	if [ $1 -eq 0 ] ; then
+-		gpasswd -d nginx shibd
+-	fi
  %else
  	if [ $1 -eq 0 ] ; then
  		/sbin/service shibd stop >/dev/null 2>&1
-@@ -367,6 +417,7 @@
+@@ -417,7 +367,6 @@
  %if "%{_vendor}" == "suse"
  %if 0%{?suse_version} >= 1210
          %service_del_preun shibd.service
-+	%service_del_preun shibfcgi.service
+-	%service_del_preun shibfcgi.service
  %else
  	%stop_on_removal shibd
  %endif
-@@ -383,6 +434,7 @@
+@@ -434,7 +383,6 @@
  # On upgrade, restart components if they're already running.
  %if 0%{?rhel} >= 7
  	%systemd_postun_with_restart shibd.service
-+	%systemd_postun_with_restart shibfcgi.service
+-	%systemd_postun_with_restart shibfcgi.service
  %else
  	if [ $1 -ge 1 ] ; then
  		/sbin/service shibd status 1>/dev/null && /sbin/service shibd restart 1>/dev/null
-@@ -425,6 +477,8 @@
+@@ -477,8 +425,6 @@
  %exclude %{_libdir}/*.la
  %dir %{_libdir}/shibboleth
  %{_libdir}/shibboleth/*.so
-+%{_libdir}/shibboleth/shibauthorizer
-+%{_libdir}/shibboleth/shibresponder
+-%{_libdir}/shibboleth/shibauthorizer
+-%{_libdir}/shibboleth/shibresponder
  %exclude %{_libdir}/shibboleth/*.la
  %{?_with_fastcgi:%{_libdir}/shibboleth/shibauthorizer}
  %{?_with_fastcgi:%{_libdir}/shibboleth/shibresponder} 
-@@ -459,9 +513,6 @@
+@@ -513,6 +459,9 @@
  %config %{_initrddir}/shibd
  %{_sbindir}/rcshibd
  %endif
--%if 0%{?suse_version} >= 1210 || 0%{?rhel} >= 7
--%{_tmpfilesdir}/%{name}.conf
--%endif
++%if 0%{?suse_version} >= 1210 || 0%{?rhel} >= 7
++%{_tmpfilesdir}/%{name}.conf
++%endif
  %{_sysconfdir}/shibboleth/example-shibboleth2.xml
  %{_sysconfdir}/shibboleth/*.dist
  %{_sysconfdir}/shibboleth/apache*.config
