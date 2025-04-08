@@ -35,7 +35,6 @@ RUN echo "Downloading Shibboleth source tarball..." \
     && mv /tmp/${SHIBBOLETH_SOURCE_TARBALL} ${HOME}/rpmbuild/SOURCES/ \
     && echo "Source preparation complete."
 COPY --chown=builder:builder logger.patch ${HOME}/rpmbuild/SOURCES/
-COPY --chown=builder:builder shibresponder.patch ${HOME}/rpmbuild/SOURCES/
 COPY --chown=builder:builder shibboleth.spec.patch ${HOME}/
 RUN echo "Patching shibboleth.spec..." \
     && cd ${HOME}/rpmbuild/SPECS \
