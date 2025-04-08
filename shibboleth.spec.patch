@@ -1,6 +1,6 @@
 --- original/shibboleth.spec	2025-04-08 17:02:14.066040498 +0900
-+++ new/shibboleth.spec	2025-04-08 18:25:33.062902855 +0900
-@@ -1,15 +1,19 @@
++++ new/shibboleth.spec	2025-04-09 06:00:07.602563078 +0900
+@@ -1,15 +1,18 @@
  Name:		shibboleth
  Version:	3.5.0
 -Release:	1
@@ -13,7 +13,6 @@
 -Source:		%{name}-sp-%{version}.tar.bz2
 +Source:		%{name}-sp-%{version}.tar.gz
 +Patch0:		logger.patch
-+Patch1:		shibresponder.patch
  BuildRoot:	%{_tmppath}/%{name}-sp-%{version}-root
  Obsoletes:	shibboleth-sp = 2.5.0
  Requires:	openssl
@@ -22,7 +21,7 @@
  %if 0%{?rhel} >= 6 || 0%{?amzn} == 1 || 0%{?amzn} == 2
  PreReq:		xmltooling-schemas%{?_isa} >= 3.2.0, opensaml-schemas%{?_isa} >= 3.2.0
  %else
-@@ -107,6 +111,8 @@
+@@ -107,6 +110,8 @@
  
  %prep
  %setup -n %{name}-sp-%{version}
@@ -31,7 +30,7 @@
  
  %build
  %if 0%{?suse_version} >= 1300
-@@ -185,6 +191,10 @@
+@@ -185,6 +190,10 @@
  	%{__mkdir} -p $RPM_BUILD_ROOT%{_unitdir}
  	echo "%attr(0444,-,-) %{_unitdir}/shibd.service" >> rpm.filelist
  	SYSTEMD_SHIBD="$RPM_BUILD_ROOT%{_unitdir}/shibd.service"
@@ -42,7 +41,7 @@
  
  	# Get run directory created at boot time.
  	%{__mkdir} -p $RPM_BUILD_ROOT%{_tmpfilesdir}
-@@ -216,7 +226,6 @@
+@@ -216,7 +225,6 @@
  Description=Shibboleth Service Provider Daemon
  Documentation=https://wiki.shibboleth.net/confluence/display/SP3/Home
  After=network-online.target
@@ -50,7 +49,7 @@
  
  [Service]
  Type=notify
-@@ -226,9 +235,6 @@
+@@ -226,9 +234,6 @@
  Environment=LD_LIBRARY_PATH=/opt/shibboleth/%{_lib}
  %endif
  ExecStart=%{_sbindir}/shibd -f -F
@@ -60,7 +59,7 @@
  TimeoutStopSec=1m
  TimeoutStartSec=5m
  Restart=on-failure
-@@ -237,6 +243,40 @@
+@@ -237,6 +242,40 @@
  [Install]
  WantedBy=multi-user.target
  EOF
@@ -101,7 +100,7 @@
  elif [ "$SYSCONFIG_SHIBD" != "no" ] ; then
  	# Populate the sysconfig file.
  	cat > $SYSCONFIG_SHIBD <<EOF
-@@ -291,6 +331,7 @@
+@@ -291,6 +330,7 @@
  	-d  %{_localstatedir}/run/shibboleth -s /sbin/nologin -c "Shibboleth SP daemon" %{runuser}
  %if 0%{?suse_version} >= 1210
  	%service_add_pre shibd.service
@@ -109,7 +108,7 @@
  %endif
  exit 0
  
-@@ -326,7 +367,11 @@
+@@ -326,7 +366,11 @@
  
  %if 0%{?rhel} >= 7
  	# Initial prep for systemd
@@ -122,7 +121,7 @@
  	if [ $1 -gt 1 ] ; then
  		systemctl daemon-reload
  	fi
-@@ -338,6 +383,7 @@
+@@ -338,6 +382,7 @@
  %if "%{_vendor}" == "suse"
  %if 0%{?suse_version} >= 1210
  	%service_add_post shibd.service
@@ -130,7 +129,7 @@
  	systemd-tmpfiles --create %{_tmpfilesdir}/%{name}.conf
  %else
  	# This adds the proper /etc/rc*.d links for the script
-@@ -353,6 +399,10 @@
+@@ -353,6 +398,10 @@
  %if "%{_vendor}" == "redhat" || "%{_vendor}" == "amazon"
  %if 0%{?rhel} >= 7
  	%systemd_preun shibd.service
@@ -141,7 +140,7 @@
  %else
  	if [ $1 -eq 0 ] ; then
  		/sbin/service shibd stop >/dev/null 2>&1
-@@ -367,6 +417,7 @@
+@@ -367,6 +416,7 @@
  %if "%{_vendor}" == "suse"
  %if 0%{?suse_version} >= 1210
          %service_del_preun shibd.service
@@ -149,7 +148,7 @@
  %else
  	%stop_on_removal shibd
  %endif
-@@ -383,6 +434,7 @@
+@@ -383,6 +433,7 @@
  # On upgrade, restart components if they're already running.
  %if 0%{?rhel} >= 7
  	%systemd_postun_with_restart shibd.service
@@ -157,7 +156,7 @@
  %else
  	if [ $1 -ge 1 ] ; then
  		/sbin/service shibd status 1>/dev/null && /sbin/service shibd restart 1>/dev/null
-@@ -425,6 +477,8 @@
+@@ -425,6 +476,8 @@
  %exclude %{_libdir}/*.la
  %dir %{_libdir}/shibboleth
  %{_libdir}/shibboleth/*.so
@@ -166,7 +165,7 @@
  %exclude %{_libdir}/shibboleth/*.la
  %{?_with_fastcgi:%{_libdir}/shibboleth/shibauthorizer}
  %{?_with_fastcgi:%{_libdir}/shibboleth/shibresponder} 
-@@ -459,9 +513,6 @@
+@@ -459,9 +512,6 @@
  %config %{_initrddir}/shibd
  %{_sbindir}/rcshibd
  %endif
