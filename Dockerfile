@@ -44,8 +44,8 @@ RUN yum -y install epel-release
 RUN yum -y install fcgi-devel
 RUN mkdir -p /tmp/buffer
 RUN mkdir -p /tmp/rpms
-RUN yumdownloader --destdir /tmp/rpms libcurl-openssl liblog4shib2 libsaml10 libsaml-devel libxml-security-c20 \
-     libxmltooling8 opensaml-schemas xmltooling-schemas libxerces-c-3_2 libxmltooling-devel liblog4shib-devel \
+RUN yumdownloader --destdir /tmp/rpms libcurl-openssl liblog4shib2 libsaml13 libsaml-devel libxml-security-c30 \
+     libxmltooling11 opensaml-schemas xmltooling-schemas libxerces-c-3_3 libxmltooling-devel liblog4shib-devel \
      libxml-security-c-devel libxerces-c-devel libcurl-openssl-devel
 USER builder
 RUN mkdir -p ${HOME}/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
