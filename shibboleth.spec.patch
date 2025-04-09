@@ -1,45 +1,35 @@
---- original3/shibboleth.spec	2018-09-20 19:26:14.961254080 +0900
-+++ new3/shibboleth.spec	2018-09-20 19:26:33.850984334 +0900
-@@ -1,15 +1,19 @@
+--- original/shibboleth.spec	2025-04-08 17:02:14.066040498 +0900
++++ new/shibboleth.spec	2025-04-09 06:06:12.086285705 +0900
+@@ -1,15 +1,18 @@
  Name:		shibboleth
- Version:	3.0.1
--Release:	3.1
-+Release:	3.2
+ Version:	3.5.0
+-Release:	1
++Release:	2
  Summary:	Open source system for attribute-based Web SSO
  Group:		Productivity/Networking/Security
  Vendor:		Shibboleth Consortium
  License:	Apache-2.0
  URL:		http://shibboleth.net/
- Source:		%{name}-sp-%{version}.tar.bz2
+-Source:		%{name}-sp-%{version}.tar.bz2
++Source:		%{name}-sp-%{version}.tar.gz
 +Patch0:		logger.patch
-+Patch1:		shibresponder.patch
  BuildRoot:	%{_tmppath}/%{name}-sp-%{version}-root
  Obsoletes:	shibboleth-sp = 2.5.0
  Requires:	openssl
 +Requires: 	supervisor
 +Requires: 	nginx
- %if 0%{?rhel} >= 6 || 0%{?centos_version} >= 600 || 0%{?amzn} >= 1
- PreReq:		xmltooling-schemas%{?_isa} >= 3.0.0, opensaml-schemas%{?_isa} >= 3.0.0
+ %if 0%{?rhel} >= 6 || 0%{?amzn} == 1 || 0%{?amzn} == 2
+ PreReq:		xmltooling-schemas%{?_isa} >= 3.2.0, opensaml-schemas%{?_isa} >= 3.2.0
  %else
-@@ -101,6 +105,8 @@
+@@ -107,6 +110,7 @@
  
  %prep
  %setup -n %{name}-sp-%{version}
 +%patch0 -p1
-+%patch1 -p1
  
  %build
  %if 0%{?suse_version} >= 1300
-@@ -164,7 +170,7 @@
- 	fi
- 	if [ "$APACHE_CONFD" != "no" ] ; then
- 		%{__mkdir} -p $RPM_BUILD_ROOT$APACHE_CONFD
--		%{__cp} -p $RPM_BUILD_ROOT%{_sysconfdir}/shibboleth/$APACHE_CONFIG $RPM_BUILD_ROOT$APACHE_CONFD/shib.conf 
-+		%{__cp} -p $RPM_BUILD_ROOT%{_sysconfdir}/shibboleth/$APACHE_CONFIG $RPM_BUILD_ROOT$APACHE_CONFD/shib.conf
- 		echo "%config(noreplace) $APACHE_CONFD/shib.conf" >> rpm.filelist
- 	fi
- fi
-@@ -175,6 +181,10 @@
+@@ -185,6 +189,10 @@
  	%{__mkdir} -p $RPM_BUILD_ROOT%{_unitdir}
  	echo "%attr(0444,-,-) %{_unitdir}/shibd.service" >> rpm.filelist
  	SYSTEMD_SHIBD="$RPM_BUILD_ROOT%{_unitdir}/shibd.service"
@@ -50,17 +40,15 @@
  
  	# Get run directory created at boot time.
  	%{__mkdir} -p $RPM_BUILD_ROOT%{_tmpfilesdir}
-@@ -205,8 +215,7 @@
- [Unit]
+@@ -216,7 +224,6 @@
  Description=Shibboleth Service Provider Daemon
  Documentation=https://wiki.shibboleth.net/confluence/display/SP3/Home
--After=network.target
+ After=network-online.target
 -Before=httpd.service
-+After=network-online.target
  
  [Service]
  Type=notify
-@@ -216,9 +225,6 @@
+@@ -226,9 +233,6 @@
  Environment=LD_LIBRARY_PATH=/opt/shibboleth/%{_lib}
  %endif
  ExecStart=%{_sbindir}/shibd -f -F
@@ -70,11 +58,11 @@
  TimeoutStopSec=1m
  TimeoutStartSec=5m
  Restart=on-failure
-@@ -227,6 +233,40 @@
+@@ -237,6 +241,40 @@
  [Install]
  WantedBy=multi-user.target
  EOF
-+  cat > $SYSTEMD_SHIBFCGI <<EOF
++cat > $SYSTEMD_SHIBFCGI <<EOF
 +[Unit]
 +Description=Shibboleth Fast CGI support service
 +
@@ -111,7 +99,7 @@
  elif [ "$SYSCONFIG_SHIBD" != "no" ] ; then
  	# Populate the sysconfig file.
  	cat > $SYSCONFIG_SHIBD <<EOF
-@@ -281,6 +321,7 @@
+@@ -291,6 +329,7 @@
  	-d  %{_localstatedir}/run/shibboleth -s /sbin/nologin -c "Shibboleth SP daemon" %{runuser}
  %if 0%{?suse_version} >= 1210
  	%service_add_pre shibd.service
@@ -119,20 +107,20 @@
  %endif
  exit 0
  
-@@ -326,7 +367,11 @@
+@@ -326,7 +365,11 @@
  
- %if 0%{?rhel} >= 7 || 0%{?centos_version} >= 700
+ %if 0%{?rhel} >= 7
  	# Initial prep for systemd
 -	%systemd_post shibd.service
-+  systemctl enable shibd.service
-+  systemctl enable shibfcgi.service
++systemctl enable shibd.service
++systemctl enable shibfcgi.service
 +	if [ $1 -eq 1 ] ; then
 +		gpasswd -a nginx shibd
 +	fi
  	if [ $1 -gt 1 ] ; then
  		systemctl daemon-reload
  	fi
-@@ -338,6 +383,7 @@
+@@ -338,6 +381,7 @@
  %if "%{_vendor}" == "suse"
  %if 0%{?suse_version} >= 1210
  	%service_add_post shibd.service
@@ -140,9 +128,9 @@
  	systemd-tmpfiles --create %{_tmpfilesdir}/%{name}.conf
  %else
  	# This adds the proper /etc/rc*.d links for the script
-@@ -353,6 +399,10 @@
+@@ -353,6 +397,10 @@
  %if "%{_vendor}" == "redhat" || "%{_vendor}" == "amazon"
- %if 0%{?rhel} >= 7 || 0%{?centos_version} >= 700
+ %if 0%{?rhel} >= 7
  	%systemd_preun shibd.service
 +	%systemd_preun shibfcgi.service
 +	if [ $1 -eq 0 ] ; then
@@ -151,56 +139,38 @@
  %else
  	if [ $1 -eq 0 ] ; then
  		/sbin/service shibd stop >/dev/null 2>&1
-@@ -366,6 +416,7 @@
+@@ -367,6 +415,7 @@
  %if "%{_vendor}" == "suse"
  %if 0%{?suse_version} >= 1210
          %service_del_preun shibd.service
-+        %service_del_preun shibfcgi.service
++	%service_del_preun shibfcgi.service
  %else
  	%stop_on_removal shibd
  %endif
-@@ -383,6 +434,7 @@
+@@ -383,6 +432,7 @@
  # On upgrade, restart components if they're already running.
- %if 0%{?rhel} >= 7 || 0%{?centos_version} >= 700
+ %if 0%{?rhel} >= 7
  	%systemd_postun_with_restart shibd.service
 +	%systemd_postun_with_restart shibfcgi.service
  %else
  	if [ $1 -ge 1 ] ; then
  		/sbin/service shibd status 1>/dev/null && /sbin/service shibd restart 1>/dev/null
-@@ -397,7 +449,7 @@
- %if 0%{?suse_version} >= 1210
- 	%service_del_postun shibd.service
- %else
--	cd / 
-+	cd /
- 	%restart_on_update shibd
- 	%{insserv_cleanup}
- %endif
-@@ -425,6 +477,8 @@
+@@ -425,6 +475,8 @@
  %exclude %{_libdir}/*.la
  %dir %{_libdir}/shibboleth
  %{_libdir}/shibboleth/*.so
 +%{_libdir}/shibboleth/shibauthorizer
 +%{_libdir}/shibboleth/shibresponder
  %exclude %{_libdir}/shibboleth/*.la
- %attr(0750,%{runuser},%{runuser}) %dir %{_localstatedir}/log/shibboleth
- %if 0%{?suse_version} < 1300
-@@ -457,9 +511,6 @@
+ %{?_with_fastcgi:%{_libdir}/shibboleth/shibauthorizer}
+ %{?_with_fastcgi:%{_libdir}/shibboleth/shibresponder} 
+@@ -459,9 +511,6 @@
  %config %{_initrddir}/shibd
  %{_sbindir}/rcshibd
  %endif
--%if 0%{?suse_version} >= 1210 || 0%{?rhel} >= 7 || 0%{?centos_version} >= 700
+-%if 0%{?suse_version} >= 1210 || 0%{?rhel} >= 7
 -%{_tmpfilesdir}/%{name}.conf
 -%endif
  %{_sysconfdir}/shibboleth/example-shibboleth2.xml
  %{_sysconfdir}/shibboleth/*.dist
  %{_sysconfdir}/shibboleth/apache*.config
-@@ -534,7 +585,7 @@
- * Sun Jun 26 2011  Scott Cantor  <cantor.2@osu.edu>  - 2.4.3-1
- - Log files shouldn't be world readable.
- - Explicit requirement for libcurl-openssl on RHEL6
--- Uncomment LD_LIBRARY_PATH in init script for RHEL6 
-+- Uncomment LD_LIBRARY_PATH in init script for RHEL6
- - Remove rpath from binaries for RHEL6
- 
- * Fri Dec 25 2009  Scott Cantor  <cantor.2@osu.edu>  - 2.4-1
